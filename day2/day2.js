@@ -23,6 +23,8 @@ input.split("\n").forEach((i) => {
   else if (dir == "forward") x += n;
 });
 
+console.log(x * d);
+
 x = 0;
 let aim = 0;
 d = 0;
