@@ -17,53 +17,37 @@ let testinput = `00100
 
 //input = testinput;
 
-let counts = [];
+let common = (lines, bit) =>
+  lines.reduce((s, l) => (l[bit] == "1" ? s + 1 : s), 0) >= lines.length / 2
+    ? "1"
+    : "0";
 
 let lines = input.split("\n");
-
-lines.map((line) => {
-  Array.from(line).forEach((c, i) => {
-    if (c == "1") {
-      if (counts[i] == undefined) counts[i] = 1;
-      else counts[i]++;
-    }
-  });
-});
+let bits = lines[0].length;
 
 let gamma = parseInt(
-  counts.map((c) => (c > lines.length / 2 ? "1" : "0")).join(""),
+  Array(bits)
+    .fill(0)
+    .map((_, i) => common(lines, i))
+    .join(""),
   2
 );
 
-let epsilon = gamma ^ ((1 << lines[0].length) - 1);
+let epsilon = gamma ^ ((1 << bits) - 1);
 
 console.log(gamma * epsilon);
 
 let oxygen = lines.slice();
 let co2 = lines.slice();
-let bit = 0;
 
-while (oxygen.length > 1) {
-  let count = oxygen
-    .map((l) => l[bit])
-    .reduce((s, c) => (c == "1" ? s + 1 : s), 0);
-  let common = count >= oxygen.length / 2 ? "1" : "0";
-
-  oxygen = oxygen.filter((l) => l[bit] == common);
-  bit++;
+for (let bit = 0; bit < bits && oxygen.length > 1; bit++) {
+  let c = common(oxygen, bit);
+  oxygen = oxygen.filter((l) => l[bit] == c);
 }
 
-bit = 0;
-
-while (co2.length > 1) {
-  let count = co2
-    .map((l) => l[bit])
-    .reduce((s, c) => (c == "1" ? s + 1 : s), 0);
-  let uncommon = count >= co2.length / 2 ? "0" : "1";
-
-  co2 = co2.filter((l) => l[bit] == uncommon);
-  console.log(bit, uncommon, co2);
-  bit++;
+for (let bit = 0; bit < bits && co2.length > 1; bit++) {
+  let c = common(co2, bit) == "1" ? "0" : "1";
+  co2 = co2.filter((l) => l[bit] == c);
 }
 
 console.log(parseInt(oxygen.join(""), 2) * parseInt(co2.join(""), 2));
