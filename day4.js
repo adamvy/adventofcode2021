@@ -1,5 +1,15 @@
 import { getInput } from "./util/aoc.js";
-import { sum, seq, some, every, map, filter, reduce, join, find } from './util/funcs.js';
+import {
+  sum,
+  seq,
+  some,
+  every,
+  map,
+  filter,
+  reduce,
+  join,
+  find,
+} from "./util/funcs.js";
 
 let input = await getInput(4);
 
@@ -26,101 +36,121 @@ let testinput = `7,4,9,5,11,17,23,2,0,14,21,24,10,16,13,6,15,25,12,22,18,20,8,19
 
 //input = testinput;
 
-let lines = input.split('\n').slice();
-let draws = lines[0].split(',').map(n => parseInt(n));
+let lines = input.split("\n").slice();
+let draws = lines[0].split(",").map((n) => parseInt(n));
 
 let b = [];
 let boards = [];
-for ( let line of lines.slice(2) ) {
-    line = line.trim();
+for (let line of lines.slice(2)) {
+  line = line.trim();
 
-    if ( line == '' ) {
-        boards.push(board(5, b));
-        b = [];
-        continue;
-    }
+  if (line == "") {
+    boards.push(board(5, b));
+    b = [];
+    continue;
+  }
 
-    b.push(line.split(/[ ]+/).map(n => parseInt(n)));
+  b.push(line.split(/[ ]+/).map((n) => parseInt(n)));
 }
 
 function board(n, data) {
-    let dim = () => seq(0, n);
+  let dim = () => seq(0, n);
 
-    return {
-        data: data,
-        *rows() {
-            for ( let row of dim() ) yield (function*() {
-                for (let col of dim() ) yield data[row][col];
-            })()
-        },
+  return {
+    data: data,
+    *rows() {
+      for (let row of dim())
+        yield (function* () {
+          for (let col of dim()) yield data[row][col];
+        })();
+    },
 
-        *cols() {
-            for ( let col of dim() )
-                yield (function*() {
-                    for ( let row of dim() ) 
-                        yield data[row][col];
-                })()
-        },
+    *cols() {
+      for (let col of dim())
+        yield (function* () {
+          for (let row of dim()) yield data[row][col];
+        })();
+    },
 
-        *straights() {
-            yield* this.rows();
-            yield* this.cols();
-        },
+    *straights() {
+      yield* this.rows();
+      yield* this.cols();
+    },
 
-        *cells() {
-            for ( let row of dim() ) for ( let col of dim() )
-                yield {
-                    row, col,
-                    set(v) { data[this.row][this.col] = v; },
-                    get() { return data[this.row][this.col] }
-                };
-        },
+    *cells() {
+      for (let row of dim())
+        for (let col of dim())
+          yield {
+            row,
+            col,
+            set(v) {
+              data[this.row][this.col] = v;
+            },
+            get() {
+              return data[this.row][this.col];
+            },
+          };
+    },
 
-        *values() {
-            for (let row of dim() ) for ( let col of dim() ) yield  data[row][col];
-        }
-    }
+    *values() {
+      for (let row of dim()) for (let col of dim()) yield data[row][col];
+    },
+  };
 }
 
 function print(b) {
-    for ( let row of b.rows() ) console.log(join(row, ' '));
+  for (let row of b.rows()) console.log(join(row, " "));
 }
 
 let n;
 let winner;
-for ( n of draws ) {
-    for (let board of boards ) {
-        for (let cell of board.cells() ) {
-            if ( cell.get() == n ) cell.set(-1);
-        }
+for (n of draws) {
+  for (let board of boards) {
+    for (let cell of board.cells()) {
+      if (cell.get() == n) cell.set(-1);
     }
+  }
 
-    winner = find(boards, board => some(board.straights(), s=> every(s, n => n == -1)));
+  winner = find(boards, (board) =>
+    some(board.straights(), (s) => every(s, (n) => n == -1))
+  );
 
-    if ( winner ) break;
+  if (winner) break;
 }
 
-console.log(reduce(filter(winner.values(), n => n > 0), sum, 0) * n);
+console.log(
+  reduce(
+    filter(winner.values(), (n) => n > 0),
+    sum,
+    0
+  ) * n
+);
 
 let winners = new Set();
 
-for ( n of draws ) {
-    for (let board of boards ) {
-        for (let cell of board.cells() ) {
-            if ( cell.get() == n ) cell.set(-1);
-        }
+for (n of draws) {
+  for (let board of boards) {
+    for (let cell of board.cells()) {
+      if (cell.get() == n) cell.set(-1);
     }
+  }
 
-    for (let board of boards ) {
-        if ( some(board.straights(), s => every(s, n => n == -1)) ) {
-            winners.add(board);
-            winner = board;
-        }
+  for (let board of boards) {
+    if (some(board.straights(), (s) => every(s, (n) => n == -1))) {
+      winners.add(board);
+      winner = board;
     }
+  }
 
-    boards = boards.filter(b => ! winners.has(b));
+  boards = boards.filter((b) => !winners.has(b));
 
-    if ( boards.length == 0 ) break;
+  if (boards.length == 0) break;
 }
 
-console.log(reduce(filter(winner.values(), n => n > 0), sum, 0) * n);
+console.log(
+  reduce(
+    filter(winner.values(), (n) => n > 0),
+    sum,
+    0
+  ) * n
+);
