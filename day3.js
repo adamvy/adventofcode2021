@@ -1,4 +1,4 @@
-import { getInput } from "../util/aoc.js";
+import { getInput } from "./util/aoc.js";
 
 let input = await getInput(3);
 
