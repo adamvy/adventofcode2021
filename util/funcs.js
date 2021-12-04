@@ -6,6 +6,18 @@ export function* seq(a, b) {
     for ( let i = a ; i < b; i++ ) yield i;
 }
 
+export function* map(n, f) {
+    for (let a of n ) {
+        yield f(a);
+    }
+}
+
+export function* filter(n, f) {
+    for (let a of n ) {
+        if ( f(a) ) yield a;
+    }
+}
+
 export function every(n, f) {
     for (let a of n) {
         if ( ! f(a) ) return false;
@@ -20,10 +32,24 @@ export function some(n, f) {
     return false;
 }
 
-export function* map(n, f) {
-    for (let a of n ) {
-        yield f(a);
+export function count(n) {
+    let c = 0;
+    for ( let a of n ) c++;
+    return c;
+}
+
+export function find(n, f) {
+    for ( let a of n ) if ( f(a) ) return a;
+    return null;
+}
+
+export function join(n, sep) {
+    let s = '';
+    for ( let a of n ) {
+        if ( s != '' ) s += sep;
+        s += a;
     }
+    return s;
 }
 
 export function reduce(n, f, initial) {
@@ -38,10 +64,4 @@ export function reduce(n, f, initial) {
     while((v = i.next(), !v.done)) acc = f(acc, v.value);
     
     return acc;
-}
-
-export function* filter(n, f) {
-    for (let a of n ) {
-        if ( f(a) ) yield a;
-    }
 }

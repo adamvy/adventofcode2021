@@ -1,5 +1,5 @@
 import { getInput } from "./util/aoc.js";
-import { sum, seq, some, every, map, filter, reduce } from './util/funcs.js';
+import { sum, seq, some, every, map, filter, reduce, join, find } from './util/funcs.js';
 
 let input = await getInput(4);
 
@@ -49,17 +49,17 @@ function board(n, data) {
     return {
         data: data,
         *rows() {
-            for ( let row of dim() ) yield function*() {
+            for ( let row of dim() ) yield (function*() {
                 for (let col of dim() ) yield data[row][col];
-            }
+            })()
         },
 
         *cols() {
             for ( let col of dim() )
-                yield function*() {
+                yield (function*() {
                     for ( let row of dim() ) 
                         yield data[row][col];
-                }
+                })()
         },
 
         *straights() {
@@ -82,28 +82,12 @@ function board(n, data) {
     }
 }
 
-let n;
-let winner;
-outer: for ( n of draws ) {
-    for (let board of boards ) {
-        for (let cell of board.cells() ) {
-            if ( cell.get() == n ) cell.set(-1);
-        }
-    }
-
-    for (let board of boards ) {
-        for (let s of board.straights()) {
-            if ( every(s(), n => n == -1 ) ) {
-                winner = board;
-                break outer;
-            }
-        }
-    }
+function print(b) {
+    for ( let row of b.rows() ) console.log(join(row, ' '));
 }
 
-console.log(reduce(filter(winner.values(), n => n > 0), sum, 0) * n);
-
-winner = undefined;
+let n;
+let winner;
 for ( n of draws ) {
     for (let board of boards ) {
         for (let cell of board.cells() ) {
@@ -111,22 +95,32 @@ for ( n of draws ) {
         }
     }
 
-    let winners = new Set();
+    winner = find(boards, board => some(board.straights(), s=> every(s, n => n == -1)));
+
+    if ( winner ) break;
+}
+
+console.log(reduce(filter(winner.values(), n => n > 0), sum, 0) * n);
+
+let winners = new Set();
+
+for ( n of draws ) {
+    for (let board of boards ) {
+        for (let cell of board.cells() ) {
+            if ( cell.get() == n ) cell.set(-1);
+        }
+    }
 
     for (let board of boards ) {
-        for (let s of board.straights()) {
-            if ( every(s(), n => n == -1 ) ) {
-                winners.add(board);
-            }
+        if ( some(board.straights(), s => every(s, n => n == -1)) ) {
+            winners.add(board);
+            winner = board;
         }
     }
 
     boards = boards.filter(b => ! winners.has(b));
 
-    if ( boards.length == 0 ) {
-        winner = winners.values().next().value;
-        break;
-    }
+    if ( boards.length == 0 ) break;
 }
 
 console.log(reduce(filter(winner.values(), n => n > 0), sum, 0) * n);
