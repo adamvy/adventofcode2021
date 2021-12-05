@@ -3,7 +3,8 @@ export function sum(a, b) {
 }
 
 export function* seq(a, b) {
-    for ( let i = a ; i < b; i++ ) yield i;
+    if ( a < b ) for ( let i = a ; i < b; i++ ) yield i;
+    else for ( let i = a ; i > b ; i-- ) yield i;
 }
 
 export function* map(n, f) {
