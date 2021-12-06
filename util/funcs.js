@@ -39,6 +39,10 @@ export function count(n) {
     return c;
 }
 
+export function sort(n) {
+    return Array.from(n).sort().values();
+}
+
 export function find(n, f) {
     for ( let a of n ) if ( f(a) ) return a;
     return null;
@@ -65,4 +69,8 @@ export function reduce(n, f, initial) {
     while((v = i.next(), !v.done)) acc = f(acc, v.value);
     
     return acc;
+}
+
+export function forEach(n, f) {
+    for ( let a of n ) f(a);
 }
