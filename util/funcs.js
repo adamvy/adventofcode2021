@@ -63,7 +63,7 @@ export function reduce(n, f, initial) {
 
     let acc;
 
-    if ( initial != undefined )
+    if ( initial == undefined )
         acc = i.next().value;
 
     while((v = i.next(), !v.done)) acc = f(acc, v.value);
